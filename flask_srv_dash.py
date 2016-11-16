@@ -33,8 +33,12 @@ class SrvDashBackgroundWorkerThread(threading.Thread):
             }
             if self.auth_enabled:
                 headers['X-Auth-Key'] = self.auth_key
-            http_response = requests.post(self.app_uri + '/add_data', json=self.logs, headers=headers)
-            self.logs = []
+            try:
+                http_response = requests.post(self.app_uri + '/add_data', json=self.logs, headers=headers)
+            except Exception as e:
+                pass
+            finally:
+                self.logs = []
 
     def add_log_item(self, log_item):
         with self.lock:
