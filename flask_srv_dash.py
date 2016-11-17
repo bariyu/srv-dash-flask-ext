@@ -76,7 +76,7 @@ class SrvDashExtension(object):
             'resp-time': int((time() - g.srv_dash_req_start_time) * 1000),
             'resp-Date': datetime.now(get_localzone()).isoformat(),
             'resp-Content-Length': int(response.headers.get('Content-Length', 0)),
-            'resp-Content-Type': response.headers.get('Content-Type'),
+            'resp-Content-Type': response.headers.get('Content-Type', ''),
         }
         g.srv_dash_req_resp_meta_data.update(response_meta_data)
         self.process_request(g.srv_dash_req_resp_meta_data)
@@ -92,7 +92,7 @@ class SrvDashExtension(object):
             'ip': request.remote_addr,
             'req-Date': datetime.now(get_localzone()).isoformat(),
             'req-Content-Length': int(request.headers.get('Content-Length', 0)) if type(request.headers.get('Content-Length')) == str else 0,
-            'req-Content-Type': request.headers.get('Content-Type'),
+            'req-Content-Type': request.headers.get('Content-Type', ''),
             'Origin': request.headers.get('Origin', ''),
-            'User-Agent': request.headers.get('User-Agent'),
+            'User-Agent': request.headers.get('User-Agent', ''),
         }
