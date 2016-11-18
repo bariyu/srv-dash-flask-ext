@@ -25,20 +25,25 @@ class SrvDashBackgroundWorkerThread(threading.Thread):
         self.logs = []
 
     def send_logs(self):
+        logs_to_send = []
         with self.lock:
+            # only get logs to send in critical section
             if not self.logs: # no logs to send
                 return
-            headers = {
-                'Content-Type': 'application/json',
-            }
-            if self.auth_enabled:
-                headers['X-Auth-Key'] = self.auth_key
-            try:
-                http_response = requests.post(self.app_uri + '/add_data', json=self.logs, headers=headers)
-            except Exception as e:
-                pass
-            finally:
-                self.logs = []
+            logs_to_send = self.logs
+            self.logs = []
+        # send the logs without the lock, so that other threads will not wait when adding new logs to queue
+        # while we are sending logs to dash
+        headers = {
+            'Content-Type': 'application/json',
+        }
+        if self.auth_enabled:
+            headers['X-Auth-Key'] = self.auth_key
+        try:
+            http_response = requests.post(self.app_uri + '/add_data', json=logs_to_send, headers=headers)
+        except Exception as e:
+            pass
+
 
     def add_log_item(self, log_item):
         with self.lock:
@@ -46,7 +51,7 @@ class SrvDashBackgroundWorkerThread(threading.Thread):
 
     def run(self):
         while True:
-            sleep(30)
+            sleep(20)
             self.send_logs()
 
 
