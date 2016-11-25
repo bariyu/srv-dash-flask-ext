@@ -1,6 +1,7 @@
 from time import time, sleep
 import threading
 from datetime import datetime
+import json
 
 import requests
 from flask import current_app, g, request
@@ -40,7 +41,7 @@ class SrvDashBackgroundWorkerThread(threading.Thread):
         if self.auth_enabled:
             headers['X-Auth-Key'] = self.auth_key
         try:
-            http_response = requests.post(self.app_uri + '/add_data', json=logs_to_send, headers=headers)
+            http_response = requests.post(self.app_uri + '/add_data', data=json.dumps(logs_to_send), headers=headers)
         except Exception as e:
             pass
 
